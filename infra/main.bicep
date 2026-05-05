@@ -3,7 +3,7 @@
 // =============================================================================
 // All resources are idempotent. Re-running this template will update in place.
 // No numeric suffixes are used on resource names.
-//
+// 
 // Deploy via:  infra/deploy.sh  (or deploy.ps1 on Windows)
 // =============================================================================
 
@@ -419,4 +419,4 @@ resource kvSecretsUserRole 'Microsoft.Authorization/roleAssignments@2022-04-01' 
 output functionAppHostname string = functionApp.properties.defaultHostName
 output keyVaultName string = keyVault.name
 output functionAppName string = functionApp.name
-output aoaiEndpoint string = 'https://${aoaiName}.openai.azure.com/\n
+output aoaiEndpoint string = 'https://${aoaiName}.openai.azure.com/'
