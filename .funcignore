@@ -16,6 +16,5 @@ venv/
 local.settings.json
 infra/
 docs/
-config/
 README.md
 .funcignore
