@@ -21,6 +21,9 @@ param appInsightsName string = 'appi-layout-counter'
 @description('Storage Account name (must be globally unique, 3-24 lowercase alphanumeric).')
 param storageAccountName string = 'stlayoutcounter'
 
+@description('Deployment package blob container name (Flex Consumption).')
+param deploymentContainerName string = 'app-package-func-layout-counter'
+
 @description('Key Vault name (must be globally unique, 3-24 alphanumeric/hyphens).')
 param keyVaultName string = 'kv-layout-counter'
 
@@ -110,6 +113,21 @@ resource storageDiagnostics 'Microsoft.Insights/diagnosticSettings@2021-05-01-pr
         enabled: true
       }
     ]
+  }
+}
+
+// Flex Consumption requires a dedicated blob container for the deployed code package.
+resource blobServices 'Microsoft.Storage/storageAccounts/blobServices@2023-01-01' = {
+  parent: storageAccount
+  name: 'default'
+  properties: {}
+}
+
+resource deploymentContainer 'Microsoft.Storage/storageAccounts/blobServices/containers@2023-01-01' = {
+  parent: blobServices
+  name: deploymentContainerName
+  properties: {
+    publicAccess: 'None'
   }
 }
 
@@ -237,7 +255,7 @@ resource appServicePlan 'Microsoft.Web/serverfarms@2023-12-01' = {
 }
 
 // =============================================================================
-// Function App
+// Function App (Flex Consumption)
 // =============================================================================
 resource functionApp 'Microsoft.Web/sites@2023-12-01' = {
   name: functionAppName
@@ -249,20 +267,31 @@ resource functionApp 'Microsoft.Web/sites@2023-12-01' = {
   properties: {
     serverFarmId: appServicePlan.id
     reserved: true
+    httpsOnly: true
+    functionAppConfig: {
+      deployment: {
+        storage: {
+          type: 'blobContainer'
+          value: '${storageAccount.properties.primaryEndpoints.blob}${deploymentContainerName}'
+          authentication: {
+            type: 'SystemAssignedIdentity'
+          }
+        }
+      }
+      scaleAndConcurrency: {
+        maximumInstanceCount: 100
+        instanceMemoryMB: 2048
+      }
+      runtime: {
+        name: 'python'
+        version: '3.11'
+      }
+    }
     siteConfig: {
-      linuxFxVersion: 'Python|3.11'
       appSettings: [
         {
           name: 'AzureWebJobsStorage__accountName'
           value: storageAccount.name
-        }
-        {
-          name: 'FUNCTIONS_WORKER_RUNTIME'
-          value: 'python'
-        }
-        {
-          name: 'FUNCTIONS_EXTENSION_VERSION'
-          value: '~4'
         }
         {
           name: 'APPLICATIONINSIGHTS_CONNECTION_STRING'
@@ -308,22 +337,13 @@ resource functionApp 'Microsoft.Web/sites@2023-12-01' = {
           name: 'LOG_LEVEL'
           value: 'INFO'
         }
-        {
-          name: 'PYTHON_ENABLE_WORKER_EXTENSIONS'
-          value: '1'
-        }
       ]
       ftpsState: 'Disabled'
       minTlsVersion: '1.2'
     }
-    httpsOnly: true
   }
   dependsOn: [
-    appServicePlan
-    storageAccount
-    appInsights
-    aoai
-    keyVault
+    deploymentContainer
   ]
 }
 
@@ -351,7 +371,7 @@ resource functionAppDiagnostics 'Microsoft.Insights/diagnosticSettings@2021-05-0
 // Role Assignments (Function App system MI)
 // =============================================================================
 
-// Storage Blob Data Owner — required for identity-based AzureWebJobsStorage.
+// Storage Blob Data Owner — required for identity-based AzureWebJobsStorage and deployment container access.
 resource storageBlobDataOwnerRole 'Microsoft.Authorization/roleAssignments@2022-04-01' = {
   name: guid(storageAccount.id, functionApp.id, 'storageBlobDataOwner')
   scope: storageAccount
@@ -399,4 +419,4 @@ resource kvSecretsUserRole 'Microsoft.Authorization/roleAssignments@2022-04-01' 
 output functionAppHostname string = functionApp.properties.defaultHostName
 output keyVaultName string = keyVault.name
 output functionAppName string = functionApp.name
-output aoaiEndpoint string = 'https://${aoaiName}.openai.azure.com/'
+output aoaiEndpoint string = 'https://${aoaiName}.openai.azure.com/';
