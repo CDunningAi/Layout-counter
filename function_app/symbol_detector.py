@@ -21,7 +21,7 @@ import time
 from dataclasses import dataclass, field
 from typing import Dict, List, Optional
 
-from azure.identity.aio import DefaultAzureCredential
+from azure.identity.aio import DefaultAzureCredential, get_bearer_token_provider
 from openai import AsyncAzureOpenAI
 
 from config_loader import Category, get_categories
@@ -85,14 +85,14 @@ def _image_to_data_url(png_bytes: bytes) -> str:
 async def _get_aoai_client() -> AsyncAzureOpenAI:
     """Create an AsyncAzureOpenAI client authenticated via DefaultAzureCredential."""
     credential = DefaultAzureCredential()
-    # Obtain a token for the Cognitive Services scope.
-    token = await credential.get_token("https://cognitiveservices.azure.com/.default")
+    token_provider = get_bearer_token_provider(
+        credential, "https://cognitiveservices.azure.com/.default"
+    )
 
     client = AsyncAzureOpenAI(
         azure_endpoint=_ENDPOINT,
-        azure_deployment=_DEPLOYMENT,
+        azure_ad_token_provider=token_provider,
         api_version=_API_VERSION,
-        api_key=token.token,  # bearer token used as API key
     )
     return client
 
