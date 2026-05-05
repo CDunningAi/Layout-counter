@@ -49,7 +49,7 @@ class PageResult:
 
 def _build_system_prompt(categories: List[Category]) -> str:
     lines = [
-        "You are an expert at analysing architectural office floorplan drawings.",
+        "You are an expert at analyzing architectural office floorplan drawings.",
         "Your task is to COUNT the number of each furniture/equipment symbol visible "
         "in the image provided.",
         "",
@@ -69,7 +69,7 @@ def _build_system_prompt(categories: List[Category]) -> str:
         '2. The JSON must have exactly two keys: "counts" and "notes".',
         '3. "counts" maps EVERY category name (exactly as listed above) to an integer.',
         "   Use 0 for categories not present — do NOT omit any category.",
-        "4. Normalise any alias to the canonical category name shown above.",
+        "4. Normalize any alias to the canonical category name shown above.",
         '5. "notes" is a brief free-text string describing any ambiguities (may be "").',
         "",
         'Example output: {"counts": {"Desk": 12, "Chair": 24, ...}, "notes": ""}',
@@ -167,7 +167,7 @@ async def detect_page(
                 counts_raw: dict = parsed.get("counts", {})
                 notes: str = parsed.get("notes", "")
 
-                # Normalise: ensure all categories are present and values are ints.
+                # Normalize: ensure all categories are present and values are ints.
                 counts: Dict[str, int] = {}
                 for name in category_names:
                     counts[name] = int(counts_raw.get(name, 0))

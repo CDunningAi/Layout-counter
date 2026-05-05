@@ -270,7 +270,7 @@ resource functionApp 'Microsoft.Web/sites@2023-12-01' = {
         }
         {
           name: 'AZURE_OPENAI_ENDPOINT'
-          value: 'https://${aoai.properties.endpoint != null ? aoai.name : aoaiName}.openai.azure.com/'
+          value: 'https://${aoaiName}.openai.azure.com/'
         }
         {
           name: 'AZURE_OPENAI_DEPLOYMENT'
