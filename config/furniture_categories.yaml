@@ -1,0 +1,95 @@
+# ============================================================
+# Furniture Categories Configuration
+# ============================================================
+#
+# This file defines the furniture/equipment symbols that GPT-4o
+# will detect in office floorplan drawings.
+#
+# HOW TO ADD A CATEGORY:
+#   1. Add a new entry to the list below with at least a 'name'.
+#   2. Optionally add 'aliases' (alternative names GPT might use)
+#      and a 'description' (helps GPT understand what to count).
+#   3. Save the file and REDEPLOY the Azure Function for changes
+#      to take effect (run: infra/deploy.sh, then publish code).
+#
+# SCHEMA:
+#   categories:
+#     - name: <canonical name used in Excel output>   # required
+#       aliases:                                       # optional
+#         - <alternative name or abbreviation>
+#       description: <short description for GPT>      # optional
+# ============================================================
+
+categories:
+  - name: Desk
+    aliases:
+      - Workstation
+      - Work desk
+      - Office desk
+    description: Standard individual office desk or workstation surface.
+
+  - name: Chair
+    aliases:
+      - Office chair
+      - Task chair
+      - Seat
+    description: Any seated chair including office chairs, visitor chairs, and task chairs.
+
+  - name: Conference Table
+    aliases:
+      - Meeting table
+      - Boardroom table
+      - Conf table
+    description: Large table intended for group meetings or conference rooms.
+
+  - name: Filing Cabinet
+    aliases:
+      - File cabinet
+      - Storage cabinet
+      - Lateral file
+      - Pedestal
+    description: Upright or lateral cabinet used for storing files and documents.
+
+  - name: Sofa
+    aliases:
+      - Couch
+      - Settee
+      - Lounge seat
+    description: Multi-seat upholstered seating found in lounges or reception areas.
+
+  - name: Monitor
+    aliases:
+      - Screen
+      - Display
+      - Computer monitor
+    description: Computer monitor or display screen on a desk or wall mount.
+
+  - name: Plant
+    aliases:
+      - Potted plant
+      - Indoor plant
+      - Tree
+    description: Decorative indoor plant or tree shown as a circle or organic shape.
+
+  - name: Whiteboard
+    aliases:
+      - Dry-erase board
+      - Wall board
+      - Writing board
+    description: Wall-mounted or free-standing whiteboard in meeting or collaboration areas.
+
+  - name: Printer
+    aliases:
+      - Copier
+      - MFP
+      - Multifunction printer
+      - Photocopier
+    description: Printer, copier, or multifunction device typically shown as a rectangle.
+
+  - name: Phone Booth
+    aliases:
+      - Focus booth
+      - Acoustic pod
+      - Privacy booth
+      - Quiet pod
+    description: Small enclosed or semi-enclosed private calling/focus space.

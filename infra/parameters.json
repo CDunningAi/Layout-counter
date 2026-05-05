@@ -1,0 +1,48 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentParameters.json#",
+  "contentVersion": "1.0.0.0",
+  "parameters": {
+    "location": {
+      "value": "eastus"
+    },
+    "logAnalyticsWorkspaceName": {
+      "value": "log-layout-counter"
+    },
+    "appInsightsName": {
+      "value": "appi-layout-counter"
+    },
+    "storageAccountName": {
+      "value": "stlayoutcounter"
+    },
+    "keyVaultName": {
+      "value": "kv-layout-counter"
+    },
+    "aoaiName": {
+      "value": "aoai-layout-counter"
+    },
+    "aoaiDeploymentName": {
+      "value": "gpt-4o"
+    },
+    "appServicePlanName": {
+      "value": "plan-layout-counter"
+    },
+    "functionAppName": {
+      "value": "func-layout-counter"
+    },
+    "sharepointSiteHostname": {
+      "value": "brigholme.sharepoint.com"
+    },
+    "sharepointSitePath": {
+      "value": "/"
+    },
+    "sharepointFolderPath": {
+      "value": "/IT-PowerAppStorage/Layout-Counter"
+    },
+    "graphTenantId": {
+      "value": "ed98cf63-c631-48b8-9937-817ea8c6cf53"
+    },
+    "graphClientId": {
+      "value": "569177ec-898b-46c7-8c37-70ce7fff62e6"
+    }
+  }
+}

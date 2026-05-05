@@ -1,0 +1,19 @@
+{
+  "IsEncrypted": false,
+  "Values": {
+    "AzureWebJobsStorage": "UseDevelopmentStorage=true",
+    "FUNCTIONS_WORKER_RUNTIME": "python",
+    "AZURE_OPENAI_ENDPOINT": "https://<your-aoai-resource>.openai.azure.com/",
+    "AZURE_OPENAI_DEPLOYMENT": "gpt-4o",
+    "AZURE_OPENAI_API_VERSION": "2024-08-01-preview",
+    "GRAPH_TENANT_ID": "ed98cf63-c631-48b8-9937-817ea8c6cf53",
+    "GRAPH_CLIENT_ID": "569177ec-898b-46c7-8c37-70ce7fff62e6",
+    "GRAPH_CLIENT_SECRET": "<your-graph-client-secret>",
+    "SHAREPOINT_SITE_HOSTNAME": "brigholme.sharepoint.com",
+    "SHAREPOINT_SITE_PATH": "/",
+    "SHAREPOINT_FOLDER_PATH": "/IT-PowerAppStorage/Layout-Counter",
+    "APPLICATIONINSIGHTS_CONNECTION_STRING": "",
+    "LOG_LEVEL": "INFO",
+    "PYTHON_ENABLE_WORKER_EXTENSIONS": "1"
+  }
+}

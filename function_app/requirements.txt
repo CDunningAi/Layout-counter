@@ -1,0 +1,12 @@
+azure-functions
+azure-identity
+azure-keyvault-secrets
+openai>=1.40.0
+pymupdf
+pandas
+openpyxl
+pyyaml
+python-json-logger
+opencensus-ext-azure
+httpx
+msal

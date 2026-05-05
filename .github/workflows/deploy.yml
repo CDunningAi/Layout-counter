@@ -1,0 +1,117 @@
+# GitHub Actions CI/CD — Layout-Counter Azure Function
+#
+# This workflow deploys the Azure Function to Azure using OIDC federation.
+#
+# To enable:
+#  1. Create a federated identity credential on the app registration
+#     (github-actions-sifcreation, Client ID: 569177ec-898b-46c7-8c37-70ce7fff62e6)
+#     linked to this repository's main branch.
+#  2. Add the following repository secrets:
+#       AZURE_SUBSCRIPTION_ID   — your Azure subscription ID
+#       AZURE_TENANT_ID         — ed98cf63-c631-48b8-9937-817ea8c6cf53
+#       AZURE_CLIENT_ID         — 569177ec-898b-46c7-8c37-70ce7fff62e6
+#  3. Uncomment the trigger below and push to main.
+#
+# References:
+#   https://docs.microsoft.com/azure/developer/github/connect-from-azure
+
+name: Deploy Layout-Counter Function
+
+on:
+  # Uncomment to enable automatic deployment on push to main:
+  # push:
+  #   branches: [main]
+  #   paths:
+  #     - 'function_app/**'
+  #     - 'config/**'
+  #     - 'infra/**'
+
+  workflow_dispatch:
+    inputs:
+      environment:
+        description: 'Target environment'
+        required: true
+        default: 'production'
+        type: choice
+        options:
+          - production
+
+permissions:
+  id-token: write   # Required for OIDC token request
+  contents: read
+
+env:
+  AZURE_FUNCTIONAPP_NAME: func-layout-counter
+  AZURE_FUNCTIONAPP_PACKAGE_PATH: function_app
+  PYTHON_VERSION: '3.11'
+
+jobs:
+  deploy-infra:
+    name: Deploy Infrastructure (Bicep)
+    runs-on: ubuntu-latest
+    environment: production
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Azure Login (OIDC)
+        uses: azure/login@v2
+        with:
+          client-id: ${{ secrets.AZURE_CLIENT_ID }}
+          tenant-id: ${{ secrets.AZURE_TENANT_ID }}
+          subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+
+      - name: Create Resource Group
+        run: |
+          az group create \
+            --name rg-layout-counter \
+            --location eastus \
+            --output table
+
+      - name: Deploy Bicep template
+        run: |
+          az deployment group create \
+            --name layout-counter-deploy \
+            --resource-group rg-layout-counter \
+            --template-file infra/main.bicep \
+            --parameters @infra/parameters.json \
+            --output table
+
+  deploy-function:
+    name: Deploy Function Code
+    runs-on: ubuntu-latest
+    environment: production
+    needs: deploy-infra
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Python ${{ env.PYTHON_VERSION }}
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+
+      - name: Install dependencies
+        run: |
+          pip install --upgrade pip
+          pip install -r ${{ env.AZURE_FUNCTIONAPP_PACKAGE_PATH }}/requirements.txt
+
+      - name: Azure Login (OIDC)
+        uses: azure/login@v2
+        with:
+          client-id: ${{ secrets.AZURE_CLIENT_ID }}
+          tenant-id: ${{ secrets.AZURE_TENANT_ID }}
+          subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+
+      - name: Copy config into function_app package
+        run: cp -r config ${{ env.AZURE_FUNCTIONAPP_PACKAGE_PATH }}/config
+
+      - name: Deploy Azure Function
+        uses: azure/functions-action@v1
+        with:
+          app-name: ${{ env.AZURE_FUNCTIONAPP_NAME }}
+          package: ${{ env.AZURE_FUNCTIONAPP_PACKAGE_PATH }}
+          scm-do-build-during-deployment: true
+          enable-oryx-build: true
