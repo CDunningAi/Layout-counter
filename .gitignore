@@ -1,0 +1,64 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+MANIFEST
+
+# Virtual environments
+.venv/
+venv/
+ENV/
+env/
+
+# Azure Functions local settings (contains secrets)
+function_app/local.settings.json
+local.settings.json
+
+# Auto-copied config directory (source of truth is config/ at repo root)
+function_app/config/
+
+# Azure Functions worker/build artifacts
+.python_packages/
+.azurefunctions/
+__azurefunctions/
+
+# Deployment logs (auto-generated)
+infra/logs/*.log
+
+# IDE / editor
+.idea/
+.vscode/
+*.swp
+*.swo
+.DS_Store
+Thumbs.db
+
+# Pytest
+.pytest_cache/
+.coverage
+htmlcov/
+
+# mypy
+.mypy_cache/
+
+# Temporary files
+*.tmp
+*.temp
+/tmp/

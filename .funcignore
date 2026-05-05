@@ -1,0 +1,21 @@
+# Files and directories excluded when publishing the function app to Azure.
+# (Mirrors .gitignore but scoped to the function_app/ publish context.)
+
+.git*
+.vscode/
+.idea/
+__pycache__/
+*.pyc
+*.pyo
+.pytest_cache/
+.coverage
+htmlcov/
+*.egg-info/
+.venv/
+venv/
+local.settings.json
+infra/
+docs/
+config/
+README.md
+.funcignore
