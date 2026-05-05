@@ -419,4 +419,4 @@ resource kvSecretsUserRole 'Microsoft.Authorization/roleAssignments@2022-04-01' 
 output functionAppHostname string = functionApp.properties.defaultHostName
 output keyVaultName string = keyVault.name
 output functionAppName string = functionApp.name
-output aoaiEndpoint string = 'https://${aoaiName}.openai.azure.com/';
+output aoaiEndpoint string = 'https://${aoaiName}.openai.azure.com/\n
