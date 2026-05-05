@@ -1,3 +1,70 @@
+"""
+PDF renderer — converts a PDF (bytes) into per-page PNG images using PyMuPDF.
+
+If a rendered page's longer side exceeds 4096 px the page is split into 2×2
+tiles and each tile is returned with a distinct tile_index.  The caller should
+aggregate (sum) counts per page after detection.
+
+TODO: Replace the simple summation with IoU-based de-duplication to avoid
+      double-counting symbols that fall on tile boundaries.
+"""
+
+from __future__ import annotations
+
+import io
+from dataclasses import dataclass
+from typing import List
+
+import fitz  # PyMuPDF
+
+from logging_config import get_logger
+
+logger = get_logger(__name__)
+
+_DPI = 200
+_MAX_SIDE_PX = 4096
+
+
+@dataclass
+class PageImage:
+    """A single rendered image (full page or tile)."""
+
+    page_num: int      # 1-based page number
+    tile_index: int    # 0 for full-page images; 0–3 for 2×2 tiles
+    png_bytes: bytes
+    width: int
+    height: int
+
+
+def _pixmap_to_png_bytes(pix: fitz.Pixmap) -> bytes:
+    buf = io.BytesIO()
+    buf.write(pix.tobytes("png"))
+    return buf.getvalue()
+
+
+def _render_page_at_dpi(page: fitz.Page) -> fitz.Pixmap:
+    zoom = _DPI / 72.0  # PyMuPDF's default unit is 72 DPI
+    mat = fitz.Matrix(zoom, zoom)
+    return page.get_pixmap(matrix=mat, alpha=False)
+
+
+def _tile_pixmap(pix: fitz.Pixmap) -> List[fitz.Pixmap]:
+    """Split a Pixmap into four 2×2 tiles."""
+    w, h = pix.width, pix.height
+    half_w, half_h = w // 2, h // 2
+    tiles: List[fitz.Pixmap] = []
+    for row in range(2):
+        for col in range(2):
+            x0 = col * half_w
+            y0 = row * half_h
+            x1 = w if col == 1 else half_w
+            y1 = h if row == 1 else half_h
+            clip = fitz.IRect(x0, y0, x1, y1)
+            tile_pix = fitz.Pixmap(pix, clip)
+            tiles.append(tile_pix)
+    return tiles
+
+
 def render_pages(pdf_bytes: bytes) -> List[PageImage]:
     """
     Render every page of *pdf_bytes* to PNG at 200 DPI.
@@ -63,8 +130,9 @@ def render_pages(pdf_bytes: bytes) -> List[PageImage]:
                     pix.height,
                     len(png_bytes),
                 )
+
+        logger.info("Rendered %d image(s) from %d page(s)", len(images), doc.page_count)
     finally:
         doc.close()
-        
-    logger.info("Rendered %d image(s) from %d page(s)", len(images), len(images))
+
     return images
