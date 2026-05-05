@@ -10,3 +10,4 @@ python-json-logger
 opencensus-ext-azure
 httpx
 msal
+aiohttp
