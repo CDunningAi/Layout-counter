@@ -33,10 +33,10 @@
       "value": "brigholme.sharepoint.com"
     },
     "sharepointSitePath": {
-      "value": "/"
+      "value": "/sites/IT-PowerAppStorage"
     },
     "sharepointFolderPath": {
-      "value": "/IT-PowerAppStorage/Layout-Counter"
+      "value": "/Layout-Counter"
     },
     "graphTenantId": {
       "value": "ed98cf63-c631-48b8-9937-817ea8c6cf53"

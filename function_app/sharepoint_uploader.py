@@ -7,8 +7,8 @@ Environment variables consumed:
   GRAPH_CLIENT_ID            — App registration client ID
   GRAPH_CLIENT_SECRET        — Client secret (injected via Key Vault reference)
   SHAREPOINT_SITE_HOSTNAME   — e.g. brigholme.sharepoint.com
-  SHAREPOINT_SITE_PATH       — e.g. / (root site)
-  SHAREPOINT_FOLDER_PATH     — e.g. /IT-PowerAppStorage/Layout-Counter
+  SHAREPOINT_SITE_PATH       — e.g. /sites/IT-PowerAppStorage
+  SHAREPOINT_FOLDER_PATH     — e.g. /Layout-Counter
 """
 
 from __future__ import annotations
@@ -72,18 +72,33 @@ def _resolve_site_id(client: httpx.Client, headers: dict) -> str:
 
 def _resolve_drive_id(client: httpx.Client, headers: dict, site_id: str) -> str:
     """Resolve the default Documents drive ID for the given site."""
+    # Try the /drive endpoint first (works for most sites with a default drive)
     url = f"{_GRAPH_BASE}/sites/{site_id}/drive"
     resp = client.get(url, headers=headers)
-    resp.raise_for_status()
-    drive_id: str = resp.json()["id"]
-    logger.info("Resolved SharePoint drive ID: %s", drive_id)
+    
+    # If 404, fall back to /drives and get the first one
+    if resp.status_code == 404:
+        logger.warning("Single /drive endpoint returned 404, trying /drives")
+        url = f"{_GRAPH_BASE}/sites/{site_id}/drives"
+        resp = client.get(url, headers=headers)
+        resp.raise_for_status()
+        drives = resp.json().get("value", [])
+        if not drives:
+            raise ValueError(f"No drives found for site {site_id}")
+        drive_id: str = drives[0]["id"]
+        logger.info("Resolved SharePoint drive ID from /drives: %s", drive_id)
+    else:
+        resp.raise_for_status()
+        drive_id: str = resp.json()["id"]
+        logger.info("Resolved SharePoint drive ID: %s", drive_id)
+    
     return drive_id
 
 
 def _build_remote_path(original_filename: str) -> str:
     """Construct the remote SharePoint path including timestamp-stamped filename."""
     folder_path = os.environ.get(
-        "SHAREPOINT_FOLDER_PATH", "/IT-PowerAppStorage/Layout-Counter"
+        "SHAREPOINT_FOLDER_PATH", "/Layout-Counter"
     ).rstrip("/")
     stem = PurePosixPath(original_filename).stem
     timestamp = datetime.now(timezone.utc).strftime("%Y%m%d-%H%M")
