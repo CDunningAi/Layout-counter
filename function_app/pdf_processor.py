@@ -21,7 +21,7 @@ from logging_config import get_logger
 
 logger = get_logger(__name__)
 
-_DPI = 200
+_DPI = 300  # Increased from 200 for better furniture symbol recognition
 _MAX_SIDE_PX = 4096
 
 
@@ -67,7 +67,7 @@ def _tile_pixmap(pix: fitz.Pixmap) -> List[fitz.Pixmap]:
 
 def render_pages(pdf_bytes: bytes) -> List[PageImage]:
     """
-    Render every page of *pdf_bytes* to PNG at 200 DPI.
+    Render every page of *pdf_bytes* to PNG at 300 DPI.
 
     Pages whose longer side exceeds 4096 px are split into 2×2 tiles.
     Returns a flat list of :class:`PageImage` objects.

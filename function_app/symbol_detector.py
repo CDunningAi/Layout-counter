@@ -60,7 +60,7 @@ def _build_system_prompt(categories: List[Category]) -> str:
             f" (also known as: {', '.join(cat.aliases)})" if cat.aliases else ""
         )
         desc_str = f" — {cat.description}" if cat.description else ""
-        lines.append(f"  • {cat.name}{alias_str}{desc_str}")
+        lines.append(f"   {cat.name}{alias_str}{desc_str}")
 
     lines += [
         "",
@@ -124,7 +124,7 @@ async def detect_page(
                     },
                     {
                         "type": "text",
-                        "text": "Count all furniture symbols in this floorplan image. Return only the JSON.",
+                        "text": "This is an architectural office floorplan drawing. Look carefully at all the small shapes and symbols representing furniture. Count each type of furniture symbol you can identify. Pay special attention to desks (rectangular shapes at workstations), chairs (small circles or curved shapes), filing cabinets (small rectangles along walls), and other furniture items. Return only the JSON with counts for all categories.",
                     },
                 ],
             },
