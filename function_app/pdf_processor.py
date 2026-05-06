@@ -9,8 +9,6 @@ TODO: Replace the simple summation with IoU-based de-duplication to avoid
       double-counting symbols that fall on tile boundaries.
 """
 
-from __future__ import annotations
-
 import io
 from dataclasses import dataclass
 
