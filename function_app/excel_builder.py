@@ -12,7 +12,6 @@ The workbook has:
 from __future__ import annotations
 
 import io
-from typing import List
 
 import pandas as pd
 from openpyxl import load_workbook
@@ -28,7 +27,7 @@ _HEADER_FILL_HEX = "4472C4"  # Blue — matches Microsoft Office default table s
 _TOTAL_FILL_HEX = "D9E1F2"   # Light blue
 
 
-def build_workbook(page_results: List[PageResult], categories: List[str]) -> bytes:
+def build_workbook(page_results: list[PageResult], categories: list[str]) -> bytes:
     """
     Build a styled Excel workbook from *page_results* and return raw .xlsx bytes.
 

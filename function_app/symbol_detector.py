@@ -19,7 +19,6 @@ import json
 import os
 import time
 from dataclasses import dataclass, field
-from typing import Dict
 
 from azure.identity.aio import DefaultAzureCredential, get_bearer_token_provider
 from openai import AsyncAzureOpenAI
@@ -43,7 +42,7 @@ class PageResult:
     """Detection result for a single page (tiles already aggregated)."""
 
     page_num: int
-    counts: Dict[str, int] = field(default_factory=dict)
+    counts: dict[str, int] = field(default_factory=dict)
     notes: str = ""
 
 
@@ -103,7 +102,7 @@ async def detect_page(
     system_prompt: str,
     categories: list[Category],
     semaphore: asyncio.Semaphore,
-) -> Dict[str, int]:
+) -> dict[str, int]:
     """
     Send one page/tile image to GPT-4o and return a dict of category counts.
 
@@ -168,7 +167,7 @@ async def detect_page(
                 notes: str = parsed.get("notes", "")
 
                 # Normalize: ensure all categories are present and values are ints.
-                counts: Dict[str, int] = {}
+                counts: dict[str, int] = {}
                 for name in category_names:
                     counts[name] = int(counts_raw.get(name, 0))
 
@@ -229,10 +228,10 @@ async def detect_all_pages(images: list[PageImage]) -> list[PageResult]:
         detect_page(img, client, system_prompt, categories, semaphore)
         for img in images
     ]
-    results_raw: list[Dict[str, int]] = await asyncio.gather(*tasks)
+    results_raw: list[dict[str, int]] = await asyncio.gather(*tasks)
 
     # Aggregate tiles per page (simple sum — see TODO above).
-    page_aggregates: dict[int, Dict[str, int]] = {}
+    page_aggregates: dict[int, dict[str, int]] = {}
     page_notes: dict[int, list[str]] = {}
 
     for img, counts in zip(images, results_raw):
