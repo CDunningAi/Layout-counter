@@ -13,7 +13,6 @@ from __future__ import annotations
 
 import io
 from dataclasses import dataclass
-from typing import List
 
 import fitz  # PyMuPDF
 
@@ -48,11 +47,11 @@ def _render_page_at_dpi(page: fitz.Page) -> fitz.Pixmap:
     return page.get_pixmap(matrix=mat, alpha=False)
 
 
-def _tile_pixmap(pix: fitz.Pixmap) -> List[fitz.Pixmap]:
+def _tile_pixmap(pix: fitz.Pixmap) -> list[fitz.Pixmap]:
     """Split a Pixmap into four 2×2 tiles."""
     w, h = pix.width, pix.height
     half_w, half_h = w // 2, h // 2
-    tiles: List[fitz.Pixmap] = []
+    tiles: list[fitz.Pixmap] = []
     for row in range(2):
         for col in range(2):
             x0 = col * half_w
@@ -65,14 +64,14 @@ def _tile_pixmap(pix: fitz.Pixmap) -> List[fitz.Pixmap]:
     return tiles
 
 
-def render_pages(pdf_bytes: bytes) -> List[PageImage]:
+def render_pages(pdf_bytes: bytes) -> list[PageImage]:
     """
     Render every page of *pdf_bytes* to PNG at 300 DPI.
 
     Pages whose longer side exceeds 4096 px are split into 2×2 tiles.
     Returns a flat list of :class:`PageImage` objects.
     """
-    images: List[PageImage] = []
+    images: list[PageImage] = []
 
     doc = fitz.open(stream=pdf_bytes, filetype="pdf")
     logger.info("Rendering PDF: %d page(s)", doc.page_count)

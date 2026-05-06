@@ -19,7 +19,7 @@ import json
 import os
 import time
 from dataclasses import dataclass, field
-from typing import Dict, List, Optional
+from typing import Dict
 
 from azure.identity.aio import DefaultAzureCredential, get_bearer_token_provider
 from openai import AsyncAzureOpenAI
@@ -47,7 +47,7 @@ class PageResult:
     notes: str = ""
 
 
-def _build_system_prompt(categories: List[Category]) -> str:
+def _build_system_prompt(categories: list[Category]) -> str:
     lines = [
         "You are an expert at analyzing architectural office floorplan drawings.",
         "Your task is to COUNT the number of each furniture/equipment symbol visible "
@@ -101,7 +101,7 @@ async def detect_page(
     image: PageImage,
     client: AsyncAzureOpenAI,
     system_prompt: str,
-    categories: List[Category],
+    categories: list[Category],
     semaphore: asyncio.Semaphore,
 ) -> Dict[str, int]:
     """
@@ -210,7 +210,7 @@ async def detect_page(
     return {name: 0 for name in category_names}
 
 
-async def detect_all_pages(images: List[PageImage]) -> List[PageResult]:
+async def detect_all_pages(images: list[PageImage]) -> list[PageResult]:
     """
     Detect furniture symbols across all page images in parallel (max 5 concurrent).
 
@@ -229,11 +229,11 @@ async def detect_all_pages(images: List[PageImage]) -> List[PageResult]:
         detect_page(img, client, system_prompt, categories, semaphore)
         for img in images
     ]
-    results_raw: List[Dict[str, int]] = await asyncio.gather(*tasks)
+    results_raw: list[Dict[str, int]] = await asyncio.gather(*tasks)
 
     # Aggregate tiles per page (simple sum — see TODO above).
-    page_aggregates: Dict[int, Dict[str, int]] = {}
-    page_notes: Dict[int, List[str]] = {}
+    page_aggregates: dict[int, Dict[str, int]] = {}
+    page_notes: dict[int, list[str]] = {}
 
     for img, counts in zip(images, results_raw):
         pn = img.page_num
@@ -243,7 +243,7 @@ async def detect_all_pages(images: List[PageImage]) -> List[PageResult]:
         for cat_name, count in counts.items():
             page_aggregates[pn][cat_name] = page_aggregates[pn].get(cat_name, 0) + count
 
-    page_results: List[PageResult] = []
+    page_results: list[PageResult] = []
     for page_num in sorted(page_aggregates.keys()):
         page_results.append(
             PageResult(

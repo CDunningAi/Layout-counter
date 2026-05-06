@@ -11,7 +11,6 @@ from __future__ import annotations
 import os
 from dataclasses import dataclass, field
 from functools import lru_cache
-from typing import List
 
 import yaml
 
@@ -39,12 +38,12 @@ _YAML_PATH = next(
 @dataclass
 class Category:
     name: str
-    aliases: List[str] = field(default_factory=list)
+    aliases: list[str] = field(default_factory=list)
     description: str = ""
 
 
 @lru_cache(maxsize=1)
-def get_categories() -> List[Category]:
+def get_categories() -> list[Category]:
     """Load and validate furniture categories from YAML. Cached after first call."""
     logger.info("Loading furniture categories from %s", _YAML_PATH)
     try:
@@ -64,7 +63,7 @@ def get_categories() -> List[Category]:
     if not isinstance(raw_list, list):
         raise ValueError("'categories' must be a YAML list.")
 
-    categories: List[Category] = []
+    categories: list[Category] = []
     for item in raw_list:
         if not isinstance(item, dict) or "name" not in item:
             raise ValueError(f"Each category entry must have a 'name' key. Got: {item}")
